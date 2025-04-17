@@ -49,6 +49,37 @@ labels_reshaped = labels.reshape((gray.shape[0], image_rgb.shape[1]))
 masked_image[labels_reshaped == brightest_cluster_index] = centers[brightest_cluster_index]
 
 
+
+
+# ========== RGB Renk Kümeleri için K-means ==========
+pixels_rgb = image_rgb.reshape((-1, 3))
+pixels_rgb = np.float32(pixels_rgb)
+
+# RGB K-means işlemi
+k_rgb = 6
+criteria_rgb = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
+_, labels_rgb, centers_rgb = cv2.kmeans(pixels_rgb, k_rgb, None, criteria_rgb, 10, cv2.KMEANS_RANDOM_CENTERS)
+
+# Küme merkezlerini uint8'e çevir
+centers_rgb = np.uint8(centers_rgb)
+
+# Renk çubuğu oluştur
+bar_height = 50
+bar_width = 300
+bar = np.zeros((bar_height, bar_width, 3), dtype='uint8')
+step = bar_width // k_rgb
+
+for i in range(k_rgb):
+    bar[:, i*step:(i+1)*step] = centers_rgb[i]
+
+# RGB kümeleri yazdır
+print("\nRGB Küme Merkezleri:")
+for i, color in enumerate(centers_rgb):
+    print(f"Küme {i}: RGB({color[0]}, {color[1]}, {color[2]})")
+
+
+
+
 plt.figure(figsize=(10, 8))
 
 plt.subplot(3, 3, 1)
@@ -76,6 +107,10 @@ plt.imshow(masked_image, cmap='gray')
 plt.title('Maskeleme(En Parlak Küme)')
 plt.axis('off')
 
+plt.subplot(3, 3, 6)
+plt.imshow(bar)
+plt.title('Renk Küme Merkezleri (RGB)')
+plt.axis('off')
 
 plt.tight_layout()
 plt.show()
