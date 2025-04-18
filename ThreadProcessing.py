@@ -12,9 +12,9 @@ median_blurred_image = cv2.medianBlur(image_rgb,15)
 
 
 # ================= K-MEANS SEGMENTASYON =================
-# Görseli gri yap
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+# Görseli gri yaptım
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 pixel_values = gray.reshape((-1, 1))
 pixel_values = np.float32(pixel_values)
@@ -25,7 +25,7 @@ criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
 
 _, labels, centers = cv2.kmeans(pixel_values, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
 
-# Renkleri merkeze göre ayarla
+# Renkleri merkeze göre ayarlama
 centers = np.uint8(centers)
 segmented_image = centers[labels.flatten()]
 segmented_image = segmented_image.reshape(gray.shape)
@@ -51,7 +51,7 @@ masked_image[labels_reshaped == brightest_cluster_index] = centers[brightest_clu
 
 
 
-# ========== RGB Renk Kümeleri için K-means ==========
+#### RGB Renk Kümeleri için K-means ####
 pixels_rgb = image_rgb.reshape((-1, 3))
 pixels_rgb = np.float32(pixels_rgb)
 
@@ -60,21 +60,24 @@ k_rgb = 6
 criteria_rgb = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
 _, labels_rgb, centers_rgb = cv2.kmeans(pixels_rgb, k_rgb, None, criteria_rgb, 10, cv2.KMEANS_RANDOM_CENTERS)
 
-# Küme merkezlerini uint8'e çevir
 centers_rgb = np.uint8(centers_rgb)
 
-# Renk çubuğu oluştur
+#gri ton verdim
+gray_centers = np.uint8(np.dot(centers_rgb, [0.2989, 0.5870, 0.1140]))
+gray_centers_rgb = np.stack([gray_centers]*3, axis=1)  # Tek kanalı 3'e kopyala (R=G=B)
+
+
 bar_height = 50
 bar_width = 300
 bar = np.zeros((bar_height, bar_width, 3), dtype='uint8')
 step = bar_width // k_rgb
 
 for i in range(k_rgb):
-    bar[:, i*step:(i+1)*step] = centers_rgb[i]
+    bar[:, i*step:(i+1)*step] = gray_centers_rgb[i]
 
-# RGB kümeleri yazdır
+
 print("\nRGB Küme Merkezleri:")
-for i, color in enumerate(centers_rgb):
+for i, color in enumerate(gray_centers_rgb):
     print(f"Küme {i}: RGB({color[0]}, {color[1]}, {color[2]})")
 
 
@@ -113,4 +116,8 @@ plt.title('Renk Küme Merkezleri (RGB)')
 plt.axis('off')
 
 plt.tight_layout()
+
+
+
+
 plt.show()
