@@ -5,11 +5,8 @@ import matplotlib.pyplot as plt
 image = cv2.imread('C:\\Users\\silas\\Downloads\\Iplik.jpg')
 image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-blurred_image = cv2.GaussianBlur(image_rgb, (15, 15 ),0)
-
-median_blurred_image = cv2.medianBlur(image_rgb,15)
-                  
-
+blurred_image = cv2.GaussianBlur(image_rgb, (15, 15), 0)
+median_blurred_image = cv2.medianBlur(image_rgb, 15)
 
 # ================= K-MEANS SEGMENTASYON =================
 
@@ -30,26 +27,17 @@ centers = np.uint8(centers)
 segmented_image = centers[labels.flatten()]
 segmented_image = segmented_image.reshape(gray.shape)
 
-
-
-
 print("Cluster renkleri (RGB):")
 for i, center in enumerate(centers):
     print(f"Cluster {i}: {center}")
 
-brightness = np.sum(centers, axis=1) 
-brightest_cluster_index = np.argmax(brightness)  
+brightness = np.sum(centers, axis=1)
+brightest_cluster_index = np.argmax(brightness)
 print(f"En parlak cluster: {brightest_cluster_index} - Renk: {centers[brightest_cluster_index]}")
 
-
-masked_image = np.zeros_like(segmented_image)  
-labels_reshaped = labels.reshape((gray.shape[0], image_rgb.shape[1]))  
-
-
+masked_image = np.zeros_like(segmented_image)
+labels_reshaped = labels.reshape((gray.shape[0], image_rgb.shape[1]))
 masked_image[labels_reshaped == brightest_cluster_index] = centers[brightest_cluster_index]
-
-
-
 
 #### RGB Renk Kümeleri için K-means ####
 pixels_rgb = image_rgb.reshape((-1, 3))
@@ -62,10 +50,15 @@ _, labels_rgb, centers_rgb = cv2.kmeans(pixels_rgb, k_rgb, None, criteria_rgb, 1
 
 centers_rgb = np.uint8(centers_rgb)
 
-#gri ton verdim
-gray_centers = np.uint8(np.dot(centers_rgb, [0.2989, 0.5870, 0.1140]))
-gray_centers_rgb = np.stack([gray_centers]*3, axis=1)  # Tek kanalı 3'e kopyala (R=G=B)
+# 🎯 Yeni EK: Her kümedeki piksel sayısını yazdır
+unique, counts = np.unique(labels_rgb, return_counts=True)
+print("\nHer kümedeki piksel sayısı:")
+for i, count in zip(unique, counts):
+    print(f"Küme {i}: {count} piksel")
 
+# gri ton verdim
+gray_centers = np.uint8(np.dot(centers_rgb, [0.2989, 0.5870, 0.1140]))
+gray_centers_rgb = np.stack([gray_centers] * 3, axis=1)
 
 bar_height = 50
 bar_width = 300
@@ -73,21 +66,17 @@ bar = np.zeros((bar_height, bar_width, 3), dtype='uint8')
 step = bar_width // k_rgb
 
 for i in range(k_rgb):
-    bar[:, i*step:(i+1)*step] = gray_centers_rgb[i]
-
+    bar[:, i * step:(i + 1) * step] = gray_centers_rgb[i]
 
 print("\nRGB Küme Merkezleri:")
 for i, color in enumerate(gray_centers_rgb):
     print(f"Küme {i}: RGB({color[0]}, {color[1]}, {color[2]})")
 
-
-
-
 plt.figure(figsize=(10, 8))
 
 plt.subplot(3, 3, 1)
 plt.imshow(image_rgb)
-plt.title('orijinal görsel')
+plt.title('Orijinal Görsel')
 plt.axis('off')
 
 plt.subplot(3, 3, 2)
@@ -107,17 +96,13 @@ plt.axis('off')
 
 plt.subplot(3, 3, 5)
 plt.imshow(masked_image, cmap='gray')
-plt.title('Maskeleme(En Parlak Küme)')
+plt.title('Maskeleme (En Parlak Küme)')
 plt.axis('off')
 
 plt.subplot(3, 3, 6)
 plt.imshow(bar)
-plt.title('Renk Küme Merkezleri (RGB)')
+plt.title('Renk Küme Merkezleri (Gri Ton)')
 plt.axis('off')
 
 plt.tight_layout()
-
-
-
-
 plt.show()
