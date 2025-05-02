@@ -75,6 +75,9 @@ print("\nRGB Küme Merkezleri:")
 for i, color in enumerate(gray_centers_rgb):
     print(f"Küme {i}: RGB({color[0]}, {color[1]}, {color[2]})")
 
+def median_lur(data):
+    median = np.median(data)
+    return [abs(x - median) for x in data]
 
 plt.figure(figsize=(10, 8))
 
