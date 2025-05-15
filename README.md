@@ -59,6 +59,6 @@ Adım Adım Proje Açıklaması:
 -K-means segmentasyon sonucu
 
 -Maskeleme sonucu (en parlak bölge)
-
+denemeeee
 -Gri tonlu renk küme merkezi çubuğu
 - Bu proje, k means algoritması,denetimsiz öğrenme methodu ile yapılmıştır.
